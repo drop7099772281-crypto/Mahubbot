@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Earn Master</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#f4f6fb;color:#222}
+.container{max-width:480px;margin:auto;padding:18px}
+.header{background:linear-gradient(135deg,#6c5ce7,#4834d4);color:#fff;padding:25px 20px;border-radius:20px;text-align:center;margin-bottom:18px}
+.header h1{font-size:27px;margin-bottom:8px}.balance{font-size:30px;font-weight:bold;margin-top:8px}
+.card{background:#fff;border-radius:18px;padding:18px;margin-bottom:15px;box-shadow:0 4px 15px rgba(0,0,0,.07)}
+.card h2{font-size:18px;margin-bottom:12px}
+button{width:100%;border:0;padding:14px;border-radius:12px;font-size:16px;font-weight:bold;cursor:pointer;margin-top:9px}
+.watch{background:#6c5ce7;color:#fff}.auto{background:#00b894;color:#fff}.stop{background:#d63031;color:#fff}.youtube{background:#ff0000;color:#fff}
+.stats{display:flex;gap:10px}.stat{flex:1;background:#f7f7f7;padding:14px;border-radius:12px;text-align:center}
+.stat b{display:block;font-size:20px;margin-top:5px}
+.adbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);align-items:center;justify-content:center;z-index:9999}
+.ad{width:90%;max-width:380px;background:#fff;border-radius:20px;padding:25px;text-align:center}
+.timer{font-size:40px;font-weight:bold;margin:20px}.close{background:#333;color:#fff}
+.close:disabled{background:#aaa;cursor:not-allowed}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+<h1>💰 Earn Master</h1>
+<p>Watch Ads &amp; Earn Rewards</p>
+<div class="balance"><span id="balance">0.00</span> Points</div>
+</div>
+
+<div class="card">
+<h2>📊 Account Statistics</h2>
+<div class="stats">
+<div class="stat">Ads Watched<b id="adsWatched">0</b></div>
+<div class="stat">Points<b id="points">0.00</b></div>
+</div>
+</div>
+
+<div class="card">
+<h2>📺 Watch Ads</h2>
+<button class="watch" id="watchBtn">▶ Watch Ad</button>
+<button class="auto" id="autoBtn">🔄 Auto Ad</button>
+<button class="stop" id="stopBtn">⛔ Stop Auto Ad</button>
+</div>
+
+<div class="card">
+<h2>📢 YouTube Channel</h2>
+<button class="youtube" id="youtubeBtn">▶ Visit Channel</button>
+</div>
+</div>
+
+<div class="adbox" id="adBox">
+<div class="ad">
+<h2>Advertisement</h2>
+<p>Please wait...</p>
+<div class="timer" id="timer">15</div>
+<button class="close" id="closeBtn" disabled>Close</button>
+</div>
+</div>
+
+<script>
+let balance=Number(localStorage.getItem("balance"))||0;
+let adsWatched=Number(localStorage.getItem("adsWatched"))||0;
+let autoRunning=false,timerInterval=null;
+const REWARD=0.10;
+
+function updateUI(){
+ document.getElementById("balance").textContent=balance.toFixed(2);
+ document.getElementById("points").textContent=balance.toFixed(2);
+ document.getElementById("adsWatched").textContent=adsWatched;
+ localStorage.setItem("balance",balance);
+ localStorage.setItem("adsWatched",adsWatched);
+}
+
+function watchAd(){
+ if(timerInterval!==null)return;
+ const box=document.getElementById("adBox");
+ const timer=document.getElementById("timer");
+ const close=document.getElementById("closeBtn");
+ box.style.display="flex";
+ let seconds=15;
+ timer.textContent=seconds;
+ close.disabled=true;
+ timerInterval=setInterval(()=>{
+   seconds--;
+   timer.textContent=seconds;
+   if(seconds<=0){
+     clearInterval(timerInterval);
+     timerInterval=null;
+     close.disabled=false;
+   }
+ },1000);
+}
+
+function closeAd(){
+ document.getElementById("adBox").style.display="none";
+ balance+=REWARD; adsWatched++;
+ updateUI();
+ if(autoRunning)setTimeout(()=>{if(autoRunning)watchAd()},1000);
+}
+
+function startAuto(){if(!autoRunning){autoRunning=true;watchAd()}}
+function stopAuto(){
+ autoRunning=false;
+ if(timerInterval!==null){clearInterval(timerInterval);timerInterval=null}
+ document.getElementById("adBox").style.display="none";
+}
+
+document.getElementById("watchBtn").addEventListener("click",watchAd);
+document.getElementById("autoBtn").addEventListener("click",startAuto);
+document.getElementById("stopBtn").addEventListener("click",stopAuto);
+document.getElementById("closeBtn").addEventListener("click",closeAd);
+document.getElementById("youtubeBtn").addEventListener("click",()=>window.open("https://youtube.com/","_blank"));
+updateUI();
+</script>
+</body>
+</html>
