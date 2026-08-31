@@ -3,57 +3,61 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Earn Master</title>
 
-<!-- Monetag SDK -->
 <script src='//libtl.com/sdk.js' data-zone='11695469' data-sdk='show_11695469'></script>
 
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
+*{
+box-sizing:border-box;
+margin:0;
+padding:0;
+}
 
 body{
 font-family:Arial,sans-serif;
 background:#f4f6fb;
-color:#222
+color:#222;
 }
 
 .container{
 max-width:480px;
 margin:auto;
-padding:18px
+padding:18px;
 }
 
 .header{
 background:linear-gradient(135deg,#6c5ce7,#4834d4);
-color:#fff;
+color:white;
 padding:25px 20px;
 border-radius:20px;
 text-align:center;
-margin-bottom:18px
+margin-bottom:18px;
 }
 
 .header h1{
 font-size:27px;
-margin-bottom:8px
+margin-bottom:8px;
 }
 
 .balance{
 font-size:30px;
 font-weight:bold;
-margin-top:8px
+margin-top:8px;
 }
 
 .card{
-background:#fff;
+background:white;
 border-radius:18px;
 padding:18px;
 margin-bottom:15px;
-box-shadow:0 4px 15px rgba(0,0,0,.07)
+box-shadow:0 4px 15px rgba(0,0,0,.07);
 }
 
 .card h2{
 font-size:18px;
-margin-bottom:12px
+margin-bottom:12px;
 }
 
 button{
@@ -64,32 +68,32 @@ border-radius:12px;
 font-size:16px;
 font-weight:bold;
 cursor:pointer;
-margin-top:9px
+margin-top:9px;
 }
 
 .watch{
 background:#6c5ce7;
-color:white
+color:white;
 }
 
 .auto{
 background:#00b894;
-color:white
+color:white;
 }
 
 .stop{
 background:#d63031;
-color:white
+color:white;
 }
 
 .youtube{
 background:#ff0000;
-color:white
+color:white;
 }
 
 .stats{
 display:flex;
-gap:10px
+gap:10px;
 }
 
 .stat{
@@ -97,13 +101,20 @@ flex:1;
 background:#f7f7f7;
 padding:14px;
 border-radius:12px;
-text-align:center
+text-align:center;
 }
 
 .stat b{
 display:block;
 font-size:20px;
-margin-top:5px
+margin-top:5px;
+}
+
+.status{
+text-align:center;
+font-size:13px;
+color:#777;
+margin-top:12px;
 }
 </style>
 </head>
@@ -113,12 +124,15 @@ margin-top:5px
 <div class="container">
 
 <div class="header">
+
 <h1>💰 Earn Master</h1>
+
 <p>Watch Ads &amp; Earn Rewards</p>
 
 <div class="balance">
 <span id="balance">0.00</span> Points
 </div>
+
 </div>
 
 
@@ -158,6 +172,10 @@ Points
 <button class="stop" id="stopBtn">
 ⛔ Stop Auto Ad
 </button>
+
+<div class="status" id="status">
+Ready
+</div>
 
 </div>
 
@@ -199,19 +217,37 @@ document.getElementById("points")
 document.getElementById("adsWatched")
 .textContent = adsWatched;
 
-localStorage.setItem("balance",balance);
+localStorage.setItem(
+"balance",
+balance
+);
 
-localStorage.setItem("adsWatched",adsWatched);
+localStorage.setItem(
+"adsWatched",
+adsWatched
+);
+
+}
+
+
+function setStatus(message){
+
+document.getElementById("status")
+.textContent = message;
 
 }
 
 
 async function watchAd(){
 
-const adFunction =
-window.show_11695469;
+if(
+typeof window.show_11695469 !==
+"function"
+){
 
-if(typeof adFunction !== "function"){
+setStatus(
+"Monetag is loading..."
+);
 
 alert(
 "Monetag is loading. Please wait a few seconds and try again."
@@ -221,9 +257,21 @@ return;
 
 }
 
+
+setStatus(
+"Advertisement is opening..."
+);
+
+
 try{
 
-await adFunction();
+await window.show_11695469();
+
+
+/*
+Reward is added after the
+Monetag promise completes.
+*/
 
 balance += REWARD;
 
@@ -231,10 +279,37 @@ adsWatched++;
 
 updateUI();
 
+setStatus(
+"Ad completed successfully!"
+);
+
+
+if(autoRunning){
+
+setTimeout(
+function(){
+
+if(autoRunning){
+watchAd();
+}
+
+},
+1500
+);
+
+}
+
 }
 catch(error){
 
-console.log(error);
+console.log(
+"Monetag error:",
+error
+);
+
+setStatus(
+"Ad was not completed."
+);
 
 }
 
@@ -243,9 +318,15 @@ console.log(error);
 
 function startAuto(){
 
-if(autoRunning) return;
+if(autoRunning){
+return;
+}
 
 autoRunning = true;
+
+setStatus(
+"Auto Ad started"
+);
 
 watchAd();
 
@@ -256,22 +337,35 @@ function stopAuto(){
 
 autoRunning = false;
 
+setStatus(
+"Auto Ad stopped"
+);
+
 }
 
 
 document
 .getElementById("watchBtn")
-.addEventListener("click",watchAd);
+.addEventListener(
+"click",
+watchAd
+);
 
 
 document
 .getElementById("autoBtn")
-.addEventListener("click",startAuto);
+.addEventListener(
+"click",
+startAuto
+);
 
 
 document
 .getElementById("stopBtn")
-.addEventListener("click",stopAuto);
+.addEventListener(
+"click",
+stopAuto
+);
 
 
 document
@@ -285,7 +379,8 @@ window.open(
 "_blank"
 );
 
-});
+}
+);
 
 
 updateUI();
